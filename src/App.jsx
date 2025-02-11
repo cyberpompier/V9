@@ -21,7 +21,7 @@ function App() {
       case '/':
         return 'Home';
       case '/firetruck':
-        return 'Fire Trucks';
+        return 'Remise';
       case '/materiels':
         return 'Materiels';
       case '/settings':

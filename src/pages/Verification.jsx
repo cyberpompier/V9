@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { db } from '../firebase';
+import { db, auth } from '../firebase';
 import { collection, getDocs, query, where, doc, updateDoc } from 'firebase/firestore';
 import { FaCheck, FaTimes, FaExclamationTriangle, FaInfoCircle } from 'react-icons/fa';
 import './Materiels.css';
+import { onAuthStateChanged } from "firebase/auth";
 
 function Verification() {
   const { truckId } = useParams();
@@ -12,6 +13,17 @@ function Verification() {
   const [selectedItemId, setSelectedItemId] = useState(null);
   const [showCommentPopup, setShowCommentPopup] = useState(false);
   const [selectedStatus, setSelectedStatus] = useState(null);
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      setUser(currentUser);
+    });
+
+    return () => {
+      unsubscribe();
+    };
+  }, []);
 
   useEffect(() => {
     const fetchEquipment = async () => {
@@ -31,11 +43,11 @@ function Verification() {
   const handleValidClick = async (itemId) => {
     try {
       const itemDocRef = doc(db, 'materials', itemId);
-      await updateDoc(itemDocRef, { status: 'ok', comment: '' });
+      await updateDoc(itemDocRef, { status: 'ok', comment: '', timestamp: null, userPhoto: null, grade: null, name: null });
 
       setEquipment(prevEquipment =>
         prevEquipment.map(item =>
-          item.id === itemId ? { ...item, status: 'ok', comment: '' } : item
+          item.id === itemId ? { ...item, status: 'ok', comment: '', timestamp: null, userPhoto: null, grade: null, name: null } : item
         )
       );
     } catch (error) {
@@ -59,18 +71,51 @@ function Verification() {
 
   const handleCommentSubmit = async () => {
     try {
-      const itemDocRef = doc(db, 'materials', selectedItemId);
-      await updateDoc(itemDocRef, { status: selectedStatus, comment: comment });
+      if (!user) {
+        console.error("No user is currently logged in.");
+        return;
+      }
 
-      setEquipment(prevEquipment =>
-        prevEquipment.map(item =>
-          item.id === selectedItemId ? { ...item, status: selectedStatus, comment: comment } : item
-        )
-      );
-      setShowCommentPopup(false);
-      setSelectedItemId(null);
-      setComment('');
-      setSelectedStatus(null);
+      const itemDocRef = doc(db, 'materials', selectedItemId);
+      const now = new Date();
+
+      // Fetch user document from 'users' collection
+      const usersRef = collection(db, 'users');
+      const q = query(usersRef, where('uid', '==', user.uid));
+      const querySnapshot = await getDocs(q);
+
+      if (!querySnapshot.empty) {
+        const userDoc = querySnapshot.docs[0].data();
+
+        await updateDoc(itemDocRef, {
+          status: selectedStatus,
+          comment: comment,
+          timestamp: now.toISOString(),
+          userPhoto: userDoc.userPhoto || null,
+          grade: userDoc.Grade || null,
+          name: userDoc.name || null
+        });
+
+        setEquipment(prevEquipment =>
+          prevEquipment.map(item =>
+            item.id === selectedItemId ? {
+              ...item,
+              status: selectedStatus,
+              comment: comment,
+              timestamp: now.toISOString(),
+              userPhoto: userDoc.userPhoto || null,
+              grade: userDoc.Grade || null,
+              name: userDoc.name || null
+            } : item
+          )
+        );
+        setShowCommentPopup(false);
+        setSelectedItemId(null);
+        setComment('');
+        setSelectedStatus(null);
+      } else {
+        console.error("Could not find user data in 'users' collection.");
+      }
     } catch (error) {
       console.error("Erreur lors de la mise à jour du commentaire :", error);
     }
