@@ -150,7 +150,7 @@ function Home() {
 
   return (
     <main className="main-content">
-      <h2>Home Page</h2>
+      
 
       {user ? (
         <div className="profile-container">
