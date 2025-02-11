@@ -2,9 +2,11 @@ import React, { useEffect, useState } from 'react';
 import { db } from '../firebase';
 import { collection, getDocs } from 'firebase/firestore';
 import { FaFileAlt } from 'react-icons/fa';
+import { useNavigate } from 'react-router-dom';
 
 function FireTruck() {
   const [fireTrucks, setFireTrucks] = useState([]);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchFireTrucks = async () => {
@@ -16,7 +18,7 @@ function FireTruck() {
             id: doc.id,
             denomination: data.denomination || 'Nom inconnu',
             photo: data.photo || 'URL photo par défaut',
-            lien: data.lien || null // Ajout du champ lien
+            lien: data.lien || null
           };
         });
         setFireTrucks(trucks);
@@ -27,6 +29,10 @@ function FireTruck() {
 
     fetchFireTrucks();
   }, []);
+
+  const handleVerifyClick = (denomination) => {
+    navigate(`/verification/${denomination}`);
+  };
 
   return (
     <main className="main-content">
@@ -44,7 +50,7 @@ function FireTruck() {
                   <FaFileAlt size={20} />
                 </a>
               )}
-              <button className="verify-button">Vérifier</button>
+              <button className="verify-button" onClick={() => handleVerifyClick(truck.denomination)}>Vérifier</button>
             </div>
           </div>
         ))}

@@ -6,11 +6,17 @@ import Home from './pages/Home';
 import FireTruck from './pages/FireTruck';
 import Materiels from './pages/Materiels';
 import Settings from './pages/Settings';
+import Verification from './pages/Verification';
 
 function App() {
   const location = useLocation();
 
   const getPageTitle = () => {
+    if (location.pathname.startsWith('/verification')) {
+      const truckName = location.pathname.split('/').pop();
+      return `Verification - ${truckName}`;
+    }
+
     switch (location.pathname) {
       case '/':
         return 'Home';
@@ -33,6 +39,7 @@ function App() {
         <Route path="/firetruck" element={<FireTruck />} />
         <Route path="/materiels" element={<Materiels />} />
         <Route path="/settings" element={<Settings />} />
+        <Route path="/verification/:truckId" element={<Verification />} />
       </Routes>
       <Footer />
     </div>

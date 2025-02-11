@@ -185,3 +185,16 @@ body {
   background-color: #ffc107;
   color: black;
 }
+
+.validate-button {
+  background-color: #28a745;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 5px;
+  cursor: pointer;
+  display: block;
+  margin: 20px auto;
+  width: fit-content;
+  font-size: 1.2em;
+}
