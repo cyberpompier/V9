@@ -1,45 +1,50 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import { db } from '../firebase';
+import { collection, getDocs } from 'firebase/firestore';
 import { FaCheck, FaTimes, FaExclamationTriangle, FaInfoCircle } from 'react-icons/fa';
 
-const equipment = [
-  {
-    id: 1,
-    name: 'Seau pompe',
-    quantity: 1,
-    location: 'coffre AV gauche',
-    image: 'https://www.mondialextincteur.fr/Seau-pompe/Seau-pompe-15-litres-038485C5C.jpg',
-  },
-  {
-    id: 2,
-    name: 'MULTI paramétrique',
-    quantity: 1,
-    location: 'Plateau',
-    image: 'https://www.schiller.ch/schiller_images_pdfs/devices/monitoring_defi_cpr/defigard-touch-7/defigard-touch-7-emergency-monitor-defibrillator.jpg',
-  },
-  {
-    id: 3,
-    name: 'Aspirateur',
-    quantity: 1,
-    location: 'Plateau',
-    image: 'https://laerdal.com/cdn-cgi/image/width=1200,height=675,format=avif,fit=pad,quality=65/cdn-4af27a/globalassets/images--blocks/products/therapy-products/lsu/ld8_3863.jpg',
-  },
-];
-
 function Materiels() {
+  const [equipment, setEquipment] = useState([]);
+
+  useEffect(() => {
+    const fetchEquipment = async () => {
+      try {
+        const querySnapshot = await getDocs(collection(db, 'materials'));
+        const items = querySnapshot.docs.map(doc => {
+          const data = doc.data();
+          return {
+            id: doc.id,
+            denomination: data.denomination || 'Nom inconnu',
+            quantity: data.quantity || 0,
+            affection: data.affection || 'Affectation inconnue',
+            emplacement: data.emplacement || 'Emplacement inconnu',
+            photo: data.photo || 'URL photo par défaut'
+          };
+        });
+        setEquipment(items);
+      } catch (error) {
+        console.error("Erreur lors de la récupération du matériel :", error);
+      }
+    };
+
+    fetchEquipment();
+  }, []);
+
   return (
     <main className="main-content">
       <h2>Materiels</h2>
       <div className="equipment-list">
         {equipment.map((item) => (
           <div key={item.id} className="equipment-item">
-            <img src={item.image} alt={item.name} className="equipment-image" />
+            <img src={item.photo} alt={item.denomination} className="equipment-image" />
             <div className="equipment-details">
               <div className="equipment-name">
-                {item.name} <FaInfoCircle size={16} />
+                {item.denomination} <FaInfoCircle size={16} />
               </div>
               <p>Quantité: {item.quantity}</p>
               <a href="#">Documentation</a>
-              <p>Emplacement: {item.location}</p>
+              <p>Affectation: {item.affection}</p>
+              <p>Emplacement: {item.emplacement}</p>
             </div>
             <div className="equipment-actions">
               <div className="action-button valid">
