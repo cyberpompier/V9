@@ -12,13 +12,14 @@ body {
 
 .header,
 .footer {
-  background-color: #333;
+  background-color: #FF3838;
   color: white;
   text-align: center;
-  padding: 1rem;
+  padding: 0.5rem; /* Réduction du padding */
   position: fixed;
   width: 100%;
   z-index: 100;
+	border-radius: 10px;
 }
 
 .header {
@@ -30,11 +31,13 @@ body {
 }
 
 .main-content {
-  padding: 4rem 1rem;
-  margin-top: 3rem;
-  margin-bottom: 4rem;
-  overflow-y: scroll;
-  height: calc(100vh - 8rem);
+  padding: 3rem 1rem; /* Ajustement du padding */
+  margin-top: 5rem; /* Ajustement de la marge */
+  margin-bottom: 3rem; /* Ajustement de la marge */
+  /* Suppression de la hauteur fixe et de l'overflow */
+  /* overflow-y: scroll; */
+  /* height: calc(100vh - 8rem); */
+  min-height: calc(100vh - 5rem); /* Assure que le contenu prend au moins la hauteur de l'écran moins le header et footer */
 }
 
 .footer-nav {

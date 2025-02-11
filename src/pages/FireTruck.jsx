@@ -16,6 +16,7 @@ function FireTruck() {
             id: doc.id,
             denomination: data.denomination || 'Nom inconnu',
             photo: data.photo || 'URL photo par défaut',
+            lien: data.lien || null // Ajout du champ lien
           };
         });
         setFireTrucks(trucks);
@@ -29,7 +30,6 @@ function FireTruck() {
 
   return (
     <main className="main-content">
-      <h2>Fire Trucks</h2>
       <div className="truck-list">
         {fireTrucks.map((truck) => (
           <div key={truck.id} className="truck-item">
@@ -39,7 +39,11 @@ function FireTruck() {
             </div>
             <div className="truck-actions">
               <button className="verified-button">Vérifié</button>
-              <FaFileAlt size={20} />
+              {truck.lien && (
+                <a href={truck.lien} target="_blank" rel="noopener noreferrer">
+                  <FaFileAlt size={20} />
+                </a>
+              )}
               <button className="verify-button">Vérifier</button>
             </div>
           </div>

@@ -2,9 +2,11 @@ import React, { useEffect, useState } from 'react';
 import { db } from '../firebase';
 import { collection, getDocs } from 'firebase/firestore';
 import { FaCheck, FaTimes, FaExclamationTriangle, FaInfoCircle } from 'react-icons/fa';
+import './Materiels.css';
 
 function Materiels() {
   const [equipment, setEquipment] = useState([]);
+  const [selectedImage, setSelectedImage] = useState(null);
 
   useEffect(() => {
     const fetchEquipment = async () => {
@@ -30,13 +32,27 @@ function Materiels() {
     fetchEquipment();
   }, []);
 
+  const handleImageClick = (imageSrc) => {
+    setSelectedImage(imageSrc);
+  };
+
+  const closeModal = () => {
+    setSelectedImage(null);
+  };
+
   return (
     <main className="main-content">
       <h2>Materiels</h2>
       <div className="equipment-list">
         {equipment.map((item) => (
           <div key={item.id} className="equipment-item">
-            <img src={item.photo} alt={item.denomination} className="equipment-image" />
+            <img
+              src={item.photo}
+              alt={item.denomination}
+              className="equipment-image"
+              onClick={() => handleImageClick(item.photo)}
+              style={{ cursor: 'pointer' }}
+            />
             <div className="equipment-details">
               <div className="equipment-name">
                 {item.denomination} <FaInfoCircle size={16} />
@@ -60,6 +76,15 @@ function Materiels() {
           </div>
         ))}
       </div>
+
+      {selectedImage && (
+        <div className="modal" onClick={closeModal}>
+          <div className="modal-content">
+            <span className="close" onClick={closeModal}>&times;</span>
+            <img src={selectedImage} alt="Equipment Full Size" style={{ maxWidth: '90%', maxHeight: '90%' }} />
+          </div>
+        </div>
+      )}
     </main>
   );
 }
