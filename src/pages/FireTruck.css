@@ -46,15 +46,20 @@
   padding: 0.5rem 1rem;
   border-radius: 5px;
   cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .verify-button {
-  background-color: transparent;
-  border: 1px solid #007bff;
-  color: #007bff;
+  background-color: #007bff;
+  color: white;
+  border: none;
   padding: 0.5rem 1rem;
   border-radius: 5px;
   cursor: pointer;
+	height: 47px;
+	
 }
 
 .info-icon {
@@ -134,4 +139,9 @@
 
 .close-button:hover {
   background-color: #c82333;
+}
+
+.verified-by {
+  background-color: #007bff;
+  color: white;
 }

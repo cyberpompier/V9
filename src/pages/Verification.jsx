@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { db, auth } from '../firebase';
 import { collection, getDocs, query, where, doc, updateDoc } from 'firebase/firestore';
 import { FaCheck, FaTimes, FaExclamationTriangle, FaInfoCircle } from 'react-icons/fa';
@@ -14,6 +14,8 @@ function Verification() {
   const [showCommentPopup, setShowCommentPopup] = useState(false);
   const [selectedStatus, setSelectedStatus] = useState(null);
   const [user, setUser] = useState(null);
+  const [selectedItem, setSelectedItem] = useState(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
@@ -152,6 +154,54 @@ function Verification() {
     }
   };
 
+  const handleInfoClick = (item) => {
+    setSelectedItem(item);
+    setShowCommentPopup(true);
+  };
+
+  const closeCommentPopup = () => {
+    setShowCommentPopup(false);
+  };
+
+  const handleValidateVerification = async () => {
+    try {
+      if (!user) {
+        console.error("No user is currently logged in.");
+        return;
+      }
+
+      // Fetch user document from 'users' collection
+      const usersRef = collection(db, 'users');
+      const q = query(usersRef, where('uid', '==', user.uid));
+      const querySnapshot = await getDocs(q);
+
+      if (!querySnapshot.empty) {
+        const userDoc = querySnapshot.docs[0].data();
+
+        // Update the vehicle document with verification information
+        const vehicleRef = collection(db, 'vehicles');
+        const vehicleQuery = query(vehicleRef, where('denomination', '==', truckId));
+        const vehicleSnapshot = await getDocs(vehicleQuery);
+
+        if (!vehicleSnapshot.empty) {
+          const vehicleDoc = vehicleSnapshot.docs[0].ref;
+          await updateDoc(vehicleDoc, {
+            verifiedBy: user.displayName || user.email,
+            verifiedByUserPhoto: userDoc.userPhoto || null,
+          });
+
+          navigate('/firetruck');
+        } else {
+          console.error("Vehicle not found in 'vehicles' collection.");
+        }
+      } else {
+        console.error("Could not find user data in 'users' collection.");
+      }
+    } catch (error) {
+      console.error("Erreur lors de la validation de la vérification :", error);
+    }
+  };
+
   return (
     <main className="main-content">
       <div className="equipment-list">
@@ -169,13 +219,19 @@ function Verification() {
             />
             <div className="equipment-details">
               <div className="equipment-name">
-                {item.denomination} <FaInfoCircle size={16} />
+                {item.denomination}
+                {item.comment && (
+                  <FaInfoCircle
+                    size={16}
+                    style={{ cursor: 'pointer', marginLeft: '5px' }}
+                    onClick={() => handleInfoClick(item)}
+                  />
+                )}
               </div>
               <p>Quantité: {item.quantity}</p>
               <a href="#">Documentation</a>
               <p>Affectation: {item.affection}</p>
               <p>Emplacement: {item.emplacement}</p>
-              {item.comment && <p>Comment: {item.comment}</p>}
             </div>
             <div className="equipment-actions">
               <div className="action-button valid" onClick={() => handleValidClick(item.id)}>
@@ -192,7 +248,37 @@ function Verification() {
         ))}
       </div>
 
-      {showCommentPopup && (
+      {showCommentPopup && selectedItem && (
+        <div className="modal">
+          <div className="modal-content">
+            <span className="close" onClick={closeCommentPopup}>&times;</span>
+            {selectedItem.userPhoto && (
+              <img
+                src={selectedItem.userPhoto}
+                alt="User"
+                style={{
+                  width: '50px',
+                  height: '50px',
+                  borderRadius: '50%',
+                  objectFit: 'cover',
+                  position: 'absolute',
+                  top: '10px',
+                  right: '10px',
+                }}
+              />
+            )}
+            {selectedItem.timestamp && selectedItem.grade && selectedItem.name && (
+              <p>
+                {new Date(selectedItem.timestamp).toLocaleString()} - {selectedItem.grade} - {selectedItem.name}
+              </p>
+            )}
+            <p><strong>{selectedItem.comment}</strong></p>
+            <button className="close-button" onClick={closeCommentPopup}>Fermer</button>
+          </div>
+        </div>
+      )}
+
+      {showCommentPopup && !selectedItem && (
         <div className="modal">
           <div className="modal-content">
             <span className="close" onClick={() => setShowCommentPopup(false)}>&times;</span>
@@ -205,7 +291,7 @@ function Verification() {
           </div>
         </div>
       )}
-      <button className="validate-button">
+      <button className="validate-button" onClick={handleValidateVerification}>
         Valider ma vérification
       </button>
     </main>

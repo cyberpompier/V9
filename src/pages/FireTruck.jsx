@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { db } from '../firebase';
+import { db, auth } from '../firebase';
 import { collection, getDocs, query, where } from 'firebase/firestore';
 import { FaFileAlt, FaInfoCircle } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import './FireTruck.css';
+import { onAuthStateChanged } from "firebase/auth";
 
 function FireTruck() {
   const [fireTrucks, setFireTrucks] = useState([]);
@@ -12,6 +13,17 @@ function FireTruck() {
   const [showCommentsPopup, setShowCommentsPopup] = useState(false);
   const [truckComments, setTruckComments] = useState([]);
   const [trucksWithComments, setTrucksWithComments] = useState([]);
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      setUser(currentUser);
+    });
+
+    return () => {
+      unsubscribe();
+    };
+  }, []);
 
   useEffect(() => {
     const fetchFireTrucks = async () => {
@@ -23,7 +35,9 @@ function FireTruck() {
             id: doc.id,
             denomination: data.denomination || 'Nom inconnu',
             photo: data.photo || 'URL photo par défaut',
-            lien: data.lien || null
+            lien: data.lien || null,
+            verifiedBy: data.verifiedBy || null,
+            verifiedByUserPhoto: data.verifiedByUserPhoto || null,
           };
         });
         setFireTrucks(trucks);
@@ -96,13 +110,29 @@ function FireTruck() {
               </h3>
             </div>
             <div className="truck-actions">
-              <button className="verified-button">Vérifié</button>
+              <button className="verify-button" onClick={() => handleVerifyClick(truck.denomination)}>Vérifier</button>
+              {truck.verifiedBy && (
+                <div className="verified-button verified-by">
+                  Vérifié
+                  {truck.verifiedByUserPhoto && (
+                    <img
+                      src={truck.verifiedByUserPhoto}
+                      alt="Verified By"
+                      style={{
+                        width: '30px',
+                        height: '30px',
+                        borderRadius: '50%',
+                        marginLeft: '5px',
+                      }}
+                    />
+                  )}
+                </div>
+              )}
               {truck.lien && (
                 <a href={truck.lien} target="_blank" rel="noopener noreferrer">
-                  <FaFileAlt size={20} />
+                  <FaFileAlt size={40} />
                 </a>
               )}
-              <button className="verify-button" onClick={() => handleVerifyClick(truck.denomination)}>Vérifier</button>
             </div>
           </div>
         ))}
