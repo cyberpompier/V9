@@ -30,7 +30,7 @@ function Verification() {
       try {
         const q = query(collection(db, 'materials'), where('affection', '==', truckId));
         const querySnapshot = await getDocs(q);
-        const items = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data(), status: 'pending', comment: '' }));
+        const items = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })); // Load existing status from Firebase
         setEquipment(items);
       } catch (error) {
         console.error("Erreur lors de la récupération du matériel :", error);
@@ -55,18 +55,32 @@ function Verification() {
     }
   };
 
-  const handleInvalidClick = (itemId) => {
+  const handleInvalidClick = async (itemId) => {
     setSelectedItemId(itemId);
     setComment('');
     setShowCommentPopup(true);
     setSelectedStatus('invalid');
+    // Update status in Firebase
+    try {
+      const itemDocRef = doc(db, 'materials', itemId);
+      await updateDoc(itemDocRef, { status: 'invalid' });
+    } catch (error) {
+      console.error("Erreur lors de la mise à jour du statut :", error);
+    }
   };
 
-  const handleAlertClick = (itemId) => {
+  const handleAlertClick = async (itemId) => {
     setSelectedItemId(itemId);
     setComment('');
     setShowCommentPopup(true);
     setSelectedStatus('alert');
+    // Update status in Firebase
+    try {
+      const itemDocRef = doc(db, 'materials', itemId);
+      await updateDoc(itemDocRef, { status: 'alert' });
+    } catch (error) {
+      console.error("Erreur lors de la mise à jour du statut :", error);
+    }
   };
 
   const handleCommentSubmit = async () => {
@@ -97,17 +111,21 @@ function Verification() {
         });
 
         setEquipment(prevEquipment =>
-          prevEquipment.map(item =>
-            item.id === selectedItemId ? {
-              ...item,
-              status: selectedStatus,
-              comment: comment,
-              timestamp: now.toISOString(),
-              userPhoto: userDoc.userPhoto || null,
-              grade: userDoc.Grade || null,
-              name: userDoc.name || null
-            } : item
-          )
+          prevEquipment.map(item => {
+            if (item.id === selectedItemId) {
+              return {
+                ...item,
+                status: selectedStatus,
+                comment: comment,
+                timestamp: now.toISOString(),
+                userPhoto: userDoc.userPhoto || null,
+                grade: userDoc.Grade || null,
+                name: userDoc.name || null
+              };
+            } else {
+              return item;
+            }
+          })
         );
         setShowCommentPopup(false);
         setSelectedItemId(null);

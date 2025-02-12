@@ -112,7 +112,7 @@ function FireTruck() {
         <div className="modal">
           <div className="modal-content comment-modal">
             <span className="close" onClick={closeCommentsPopup}>&times;</span>
-            <h3>Comments for {selectedTruck.denomination}</h3>
+            <h3>Commentaires pour {selectedTruck.denomination}</h3>
             {truckComments.length > 0 ? (
               truckComments.map((comment, index) => {
                 if (comment.comment && comment.affection === selectedTruck.denomination) {
@@ -132,7 +132,7 @@ function FireTruck() {
                 }
               })
             ) : (
-              <p>No comments found for this truck.</p>
+              <p>Aucun commentaire trouvé pour ce camion.</p>
             )}
             <button className="close-button" onClick={closeCommentsPopup}>Fermer</button>
           </div>
