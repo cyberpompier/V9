@@ -8,8 +8,13 @@ function Settings() {
   const [showMaterialForm, setShowMaterialForm] = useState(false);
 
   const [newVehicleDenomination, setNewVehicleDenomination] = useState('');
+  const [newVehicleImmatriculation, setNewVehicleImmatriculation] = useState('');
+  const [newVehicleCaserne, setNewVehicleCaserne] = useState('');
+  const [newVehicleType, setNewVehicleType] = useState('');
+  const [newVehicleEmplacements, setNewVehicleEmplacements] = useState('');
   const [newVehiclePhoto, setNewVehiclePhoto] = useState('');
   const [newVehicleLien, setNewVehicleLien] = useState('');
+  const [newVehicleDocumentation, setNewVehicleDocumentation] = useState('');
 
   const [newMaterialDenomination, setNewMaterialDenomination] = useState('');
   const [newMaterialQuantity, setNewMaterialQuantity] = useState('');
@@ -17,19 +22,28 @@ function Settings() {
   const [newMaterialEmplacement, setNewMaterialEmplacement] = useState('');
   const [newMaterialPhoto, setNewMaterialPhoto] = useState('');
   const [newMaterialDocumentation, setNewMaterialDocumentation] = useState('');
-  const [newMaterialLien, setNewMaterialLien] = useState('');
 
   const handleAddVehicle = async (e) => {
     e.preventDefault();
     try {
       await addDoc(collection(db, 'vehicles'), {
         denomination: newVehicleDenomination,
+        immatriculation: newVehicleImmatriculation,
+        caserne: newVehicleCaserne,
+        type: newVehicleType,
+        emplacements: newVehicleEmplacements,
         photo: newVehiclePhoto,
-        lien: newVehicleLien
+        lien: newVehicleLien,
+        documentation: newVehicleDocumentation
       });
       setNewVehicleDenomination('');
+      setNewVehicleImmatriculation('');
+      setNewVehicleCaserne('');
+      setNewVehicleType('');
+      setNewVehicleEmplacements('');
       setNewVehiclePhoto('');
       setNewVehicleLien('');
+      setNewVehicleDocumentation('');
       setShowVehicleForm(false);
     } catch (error) {
       console.error("Error adding vehicle:", error);
@@ -45,8 +59,7 @@ function Settings() {
         affection: newMaterialAffection,
         emplacement: newMaterialEmplacement,
         photo: newMaterialPhoto,
-        documentation: newMaterialDocumentation,
-        lien: newMaterialLien
+        documentation: newMaterialDocumentation
       });
       setNewMaterialDenomination('');
       setNewMaterialQuantity('');
@@ -54,7 +67,6 @@ function Settings() {
       setNewMaterialEmplacement('');
       setNewMaterialPhoto('');
       setNewMaterialDocumentation('');
-      setNewMaterialLien('');
       setShowMaterialForm(false);
     } catch (error) {
       console.error("Error adding material:", error);
@@ -81,6 +93,34 @@ function Settings() {
               />
               <input
                 type="text"
+                placeholder="Immatriculation"
+                value={newVehicleImmatriculation}
+                onChange={(e) => setNewVehicleImmatriculation(e.target.value)}
+                className="settings-input"
+              />
+              <input
+                type="text"
+                placeholder="Caserne"
+                value={newVehicleCaserne}
+                onChange={(e) => setNewVehicleCaserne(e.target.value)}
+                className="settings-input"
+              />
+              <input
+                type="text"
+                placeholder="Type"
+                value={newVehicleType}
+                onChange={(e) => setNewVehicleType(e.target.value)}
+                className="settings-input"
+              />
+              <input
+                type="text"
+                placeholder="Emplacements"
+                value={newVehicleEmplacements}
+                onChange={(e) => setNewVehicleEmplacements(e.target.value)}
+                className="settings-input"
+              />
+              <input
+                type="text"
                 placeholder="Photo URL"
                 value={newVehiclePhoto}
                 onChange={(e) => setNewVehiclePhoto(e.target.value)}
@@ -88,9 +128,16 @@ function Settings() {
               />
               <input
                 type="text"
-                placeholder="Lien"
+                placeholder="Lien (optional)"
                 value={newVehicleLien}
                 onChange={(e) => setNewVehicleLien(e.target.value)}
+                className="settings-input"
+              />
+              <input
+                type="text"
+                placeholder="Documentation URL (optional)"
+                value={newVehicleDocumentation}
+                onChange={(e) => setNewVehicleDocumentation(e.target.value)}
                 className="settings-input"
               />
               <div className="settings-buttons">
@@ -148,13 +195,6 @@ function Settings() {
                 placeholder="Documentation URL (optional)"
                 value={newMaterialDocumentation}
                 onChange={(e) => setNewMaterialDocumentation(e.target.value)}
-                className="settings-input"
-              />
-              <input
-                type="text"
-                placeholder="Lien (optional)"
-                value={newMaterialLien}
-                onChange={(e) => setNewMaterialLien(e.target.value)}
                 className="settings-input"
               />
               <div className="settings-buttons">
