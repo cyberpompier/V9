@@ -41,7 +41,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  position: relative; /* Make the equipment item a positioning context */
+  position: relative;
 }
 
 .beacon {
@@ -55,6 +55,7 @@
   align-items: center;
   justify-content: center;
   animation: blink 1s linear infinite;
+  cursor: pointer;
 }
 
 .beacon-icon {
@@ -90,6 +91,11 @@
   height: 50px;
   border-radius: 50%;
   object-fit: cover;
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  border: 2px solid white; /* Add a border for better visibility */
+  box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24); /* Add a subtle shadow */
 }
 
 .comment-text {
@@ -107,8 +113,8 @@
   border-radius: 5px;
   cursor: pointer;
   display: block;
-  margin: 0 auto; /* Center the button */
-  width: fit-content; /* Make the button fit its content */
+  margin: 0 auto;
+  width: fit-content;
 }
 
 .close-button:hover {
